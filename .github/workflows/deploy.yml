@@ -1,0 +1,22 @@
+name: Deploy to NAS
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into NAS and redeploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.NAS_HOST }}
+          port: ${{ secrets.NAS_SSH_PORT }}
+          username: ${{ secrets.NAS_SSH_USER }}
+          key: ${{ secrets.NAS_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/calendar-backend && git pull
+            cd ~/calendar-frontend && git pull
+            cd ~/calendar-deploy && docker compose up -d --build
