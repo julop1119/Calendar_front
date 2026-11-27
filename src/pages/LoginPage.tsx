@@ -1,6 +1,16 @@
 import { CalendarHeart } from 'lucide-react'
+import { Capacitor } from '@capacitor/core'
+import { Browser } from '@capacitor/browser'
 import { googleLoginUrl } from '../api/auth'
 import { Button } from '../components/common/Button'
+
+function startGoogleLogin() {
+  if (Capacitor.isNativePlatform()) {
+    Browser.open({ url: googleLoginUrl(Capacitor.getPlatform()) })
+    return
+  }
+  window.location.href = googleLoginUrl()
+}
 
 export function LoginPage() {
   return (
@@ -13,12 +23,7 @@ export function LoginPage() {
         <p className="mt-2 text-sm text-gray-500">
           구글 계정으로 로그인하고 가족, 친구와 캘린더를 함께 사용해보세요.
         </p>
-        <Button
-          className="mt-6 w-full"
-          onClick={() => {
-            window.location.href = googleLoginUrl()
-          }}
-        >
+        <Button className="mt-6 w-full" onClick={startGoogleLogin}>
           Google로 로그인
         </Button>
       </div>

@@ -22,6 +22,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- 구글 로그인을 시스템 브라우저에서 마친 뒤 앱으로 돌아오기 위한 커스텀 스킴 딥링크 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="com.example.calendar.app"
+                    android:host="oauth"
+                    android:pathPrefix="/callback" />
+            </intent-filter>
+
         </activity>
 
         <provider

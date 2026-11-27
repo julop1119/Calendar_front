@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import { GroupProvider } from './context/GroupContext'
+import { useOAuthDeepLink } from './native/oauthDeepLink'
 import { FullScreenSpinner } from './components/common/Spinner'
 import { AppShell } from './components/layout/AppShell'
 import { LoginPage } from './pages/LoginPage'
@@ -27,6 +28,8 @@ function ProtectedArea() {
 }
 
 export function AppRouter() {
+  useOAuthDeepLink()
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
