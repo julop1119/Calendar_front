@@ -19,4 +19,4 @@ jobs:
             set -e
             cd ~/calendar-backend && git pull
             cd ~/calendar-frontend && git pull
-            cd ~/calendar-deploy && docker compose up -d --build
+            cd ~/calendar-deploy && /bin/sudo /usr/local/bin/docker compose up -d --build
