@@ -10,6 +10,7 @@ import { CalendarPage } from './pages/CalendarPage'
 import { SharePage } from './pages/SharePage'
 import { NotesPage } from './pages/NotesPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { SettingsPage } from './pages/SettingsPage'
 
 function ProtectedArea() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -39,6 +40,7 @@ export function AppRouter() {
         <Route path="/notes" element={<NotesPage />} />
         <Route path="/share" element={<SharePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

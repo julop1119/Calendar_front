@@ -3,6 +3,7 @@ import { MemberList } from '../components/share/MemberList'
 import { UserSearch } from '../components/share/UserSearch'
 import { InviteList } from '../components/share/InviteList'
 import { FullScreenSpinner } from '../components/common/Spinner'
+import { useTranslation, format } from '../i18n/useTranslation'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -15,6 +16,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function SharePage() {
   const { selectedGroup, selectedGroupId, isLoading } = useGroupContext()
+  const { t } = useTranslation()
 
   if (isLoading) {
     return <FullScreenSpinner />
@@ -22,17 +24,17 @@ export function SharePage() {
 
   return (
     <div className="divide-y divide-gray-100 pb-24">
-      <Section title="받은 초대">
+      <Section title={t.share.receivedInvites}>
         <InviteList />
       </Section>
 
       {selectedGroupId && (
         <>
-          <Section title={`"${selectedGroup?.title}" 멤버`}>
+          <Section title={format(t.share.members, { title: selectedGroup?.title ?? '' })}>
             <MemberList groupId={selectedGroupId} />
           </Section>
 
-          <Section title="공유하기">
+          <Section title={t.share.shareTitle}>
             <UserSearch groupId={selectedGroupId} />
           </Section>
         </>

@@ -10,6 +10,7 @@ import { AddActionSheet } from '../components/calendar/AddActionSheet'
 import { AiPlannerModal } from '../components/ai/AiPlannerModal'
 import { FullScreenSpinner } from '../components/common/Spinner'
 import { EmptyState } from '../components/common/EmptyState'
+import { useTranslation } from '../i18n/useTranslation'
 import type { CalendarEvent } from '../types'
 
 type Sheet =
@@ -25,6 +26,7 @@ export function CalendarPage() {
   const [view, setView] = useState<View>('month')
   const [date, setDate] = useState(new Date())
   const [sheet, setSheet] = useState<Sheet>({ kind: 'none' })
+  const { t } = useTranslation()
 
   if (groupsLoading) {
     return <FullScreenSpinner />
@@ -34,8 +36,8 @@ export function CalendarPage() {
     return (
       <EmptyState
         icon={CalendarDays}
-        title="아직 캘린더가 없습니다"
-        description="상단의 캘린더 선택 메뉴에서 새 캘린더를 만들어보세요"
+        title={t.calendarPage.emptyTitle}
+        description={t.calendarPage.emptyDescription}
       />
     )
   }
@@ -59,7 +61,7 @@ export function CalendarPage() {
       <button
         onClick={() => setSheet({ kind: 'actions' })}
         className="fixed bottom-20 right-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg hover:bg-primary-700"
-        aria-label="일정 추가"
+        aria-label={t.calendarPage.addEvent}
       >
         <Plus className="h-6 w-6" />
       </button>

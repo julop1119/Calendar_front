@@ -5,6 +5,7 @@ import { searchUsers } from '../../api/users'
 import { useInviteMember } from '../../hooks/useInvites'
 import { extractErrorMessage } from '../../api/client'
 import { Button } from '../common/Button'
+import { useTranslation, format } from '../../i18n/useTranslation'
 import type { UserSummary } from '../../types'
 
 interface UserSearchProps {
@@ -12,6 +13,7 @@ interface UserSearchProps {
 }
 
 export function UserSearch({ groupId }: UserSearchProps) {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [message, setMessage] = useState<string | null>(null)
   const [invitedIds, setInvitedIds] = useState<number[]>([])
@@ -32,9 +34,9 @@ export function UserSearch({ groupId }: UserSearchProps) {
     invite.mutate(user.email, {
       onSuccess: () => {
         setInvitedIds((ids) => [...ids, user.id])
-        setMessage(`${user.name}님을 초대했습니다`)
+        setMessage(format(t.userSearch.invited, { name: user.name }))
       },
-      onError: (err) => setMessage(extractErrorMessage(err, '초대에 실패했습니다')),
+      onError: (err) => setMessage(extractErrorMessage(err, t.userSearch.inviteFailed)),
     })
   }
 
@@ -45,7 +47,7 @@ export function UserSearch({ groupId }: UserSearchProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          placeholder="이메일 또는 이름으로 검색"
+          placeholder={t.userSearch.placeholder}
           className="flex-1 rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
         />
         <Button variant="secondary" isLoading={search.isPending} onClick={handleSearch}>
@@ -56,7 +58,9 @@ export function UserSearch({ groupId }: UserSearchProps) {
       {message && <p className="mt-2 text-xs text-gray-500">{message}</p>}
 
       <div className="mt-3 flex flex-col gap-1">
-        {search.data?.length === 0 && <p className="py-4 text-center text-xs text-gray-400">검색 결과가 없습니다</p>}
+        {search.data?.length === 0 && (
+          <p className="py-4 text-center text-xs text-gray-400">{t.userSearch.noResults}</p>
+        )}
         {search.data?.map((user) => (
           <div key={user.id} className="flex items-center justify-between rounded-xl px-2 py-2 hover:bg-gray-50">
             <div>
@@ -70,7 +74,7 @@ export function UserSearch({ groupId }: UserSearchProps) {
               onClick={() => handleInvite(user)}
             >
               <UserPlus className="h-4 w-4" />
-              {invitedIds.includes(user.id) ? '초대됨' : '초대'}
+              {invitedIds.includes(user.id) ? t.userSearch.invitedLabel : t.userSearch.inviteLabel}
             </Button>
           </div>
         ))}

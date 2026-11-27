@@ -1,4 +1,5 @@
 import { CalendarPlus, Sparkles } from 'lucide-react'
+import { useTranslation } from '../../i18n/useTranslation'
 
 interface AddActionSheetProps {
   onClose: () => void
@@ -7,6 +8,7 @@ interface AddActionSheetProps {
 }
 
 export function AddActionSheet({ onClose, onManual, onAi }: AddActionSheetProps) {
+  const { t } = useTranslation()
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={onClose}>
       <div
@@ -22,8 +24,8 @@ export function AddActionSheet({ onClose, onManual, onAi }: AddActionSheetProps)
             <Sparkles className="h-5 w-5" />
           </span>
           <span>
-            <p className="text-sm font-medium text-gray-900">AI로 약속 잡기</p>
-            <p className="text-xs text-gray-500">"벤쿠버 다운타운에서 한식집 7시"처럼 말해보세요</p>
+            <p className="text-sm font-medium text-gray-900">{t.addActionSheet.aiTitle}</p>
+            <p className="text-xs text-gray-500">{t.addActionSheet.aiHint}</p>
           </span>
         </button>
         <button
@@ -34,8 +36,8 @@ export function AddActionSheet({ onClose, onManual, onAi }: AddActionSheetProps)
             <CalendarPlus className="h-5 w-5" />
           </span>
           <span>
-            <p className="text-sm font-medium text-gray-900">직접 일정 추가</p>
-            <p className="text-xs text-gray-500">제목, 장소, 시간을 직접 입력</p>
+            <p className="text-sm font-medium text-gray-900">{t.addActionSheet.manualTitle}</p>
+            <p className="text-xs text-gray-500">{t.addActionSheet.manualHint}</p>
           </span>
         </button>
       </div>

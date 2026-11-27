@@ -2,6 +2,8 @@ import { Bus, Footprints, MapPin, Plane, TrainFront } from 'lucide-react'
 import { Modal } from '../common/Modal'
 import { Spinner } from '../common/Spinner'
 import { useNoteTracking } from '../../hooks/useNotes'
+import { useTranslation, format } from '../../i18n/useTranslation'
+import type { TranslationDict } from '../../i18n/translations'
 import type { TransportMode } from '../../types'
 
 interface NoteTrackingModalProps {
@@ -9,26 +11,31 @@ interface NoteTrackingModalProps {
   onClose: () => void
 }
 
-const MODE_META: Record<TransportMode, { label: string; icon: typeof Footprints }> = {
-  WALK: { label: '걷는 중', icon: Footprints },
-  BUS: { label: '버스로 이동 중', icon: Bus },
-  SUBWAY: { label: '지하철로 이동 중', icon: TrainFront },
-  PLANE: { label: '비행 중', icon: Plane },
+function modeMeta(t: TranslationDict): Record<TransportMode, { label: string; icon: typeof Footprints }> {
+  return {
+    WALK: { label: t.noteTracking.modeWalk, icon: Footprints },
+    BUS: { label: t.noteTracking.modeBus, icon: Bus },
+    SUBWAY: { label: t.noteTracking.modeSubway, icon: TrainFront },
+    PLANE: { label: t.noteTracking.modePlane, icon: Plane },
+  }
 }
 
-function formatDuration(totalSeconds: number): string {
-  if (totalSeconds < 1) return '곧'
-  if (totalSeconds < 60) return `${totalSeconds}초`
+function formatDuration(totalSeconds: number, t: TranslationDict): string {
+  if (totalSeconds < 1) return t.noteTracking.soon
+  if (totalSeconds < 60) return format(t.noteTracking.seconds, { seconds: totalSeconds })
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
-  return seconds > 0 ? `${minutes}분 ${seconds}초` : `${minutes}분`
+  return seconds > 0
+    ? format(t.noteTracking.minutesSeconds, { minutes, seconds })
+    : format(t.noteTracking.minutes, { minutes })
 }
 
 export function NoteTrackingModal({ noteId, onClose }: NoteTrackingModalProps) {
   const { data: tracking, isLoading } = useNoteTracking(noteId)
+  const { t } = useTranslation()
 
   return (
-    <Modal title="쪽지 상황" onClose={onClose}>
+    <Modal title={t.noteTracking.title} onClose={onClose}>
       {isLoading || !tracking ? (
         <div className="flex justify-center py-10">
           <Spinner />
@@ -41,7 +48,8 @@ export function NoteTrackingModal({ noteId, onClose }: NoteTrackingModalProps) {
 }
 
 function TrackingBody({ tracking }: { tracking: NonNullable<ReturnType<typeof useNoteTracking>['data']> }) {
-  const meta = MODE_META[tracking.transportMode]
+  const { t } = useTranslation()
+  const meta = modeMeta(t)[tracking.transportMode]
   const Icon = meta.icon
 
   return (
@@ -65,8 +73,11 @@ function TrackingBody({ tracking }: { tracking: NonNullable<ReturnType<typeof us
               />
             </div>
             <p className="mt-1.5 text-xs text-gray-400">
-              {tracking.distanceKm.toFixed(1)}km 중 {Math.round(tracking.progressPercent)}% 이동 ·{' '}
-              {formatDuration(tracking.remainingSeconds)} 남음
+              {format(t.noteTracking.progress, {
+                distance: tracking.distanceKm.toFixed(1),
+                percent: Math.round(tracking.progressPercent),
+                duration: formatDuration(tracking.remainingSeconds, t),
+              })}
             </p>
           </div>
           {tracking.currentLatitude != null && tracking.currentLongitude != null && (
@@ -77,20 +88,20 @@ function TrackingBody({ tracking }: { tracking: NonNullable<ReturnType<typeof us
               className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline"
             >
               <MapPin className="h-3.5 w-3.5" />
-              현재 위치 지도에서 보기
+              {t.noteTracking.viewOnMap}
             </a>
           )}
         </>
       )}
 
       {tracking.status === 'DELIVERED' && (
-        <p className="text-sm font-medium text-gray-900">쪽지가 도착했어요! 📬</p>
+        <p className="text-sm font-medium text-gray-900">{t.noteTracking.delivered}</p>
       )}
 
       {tracking.status === 'LOST' && (
         <>
-          <p className="text-sm font-medium text-gray-900">쪽지가 길을 잃고 사라졌어요... 💨</p>
-          <p className="text-xs text-gray-400">아주 가끔 일어나는 일이에요</p>
+          <p className="text-sm font-medium text-gray-900">{t.noteTracking.lostTitle}</p>
+          <p className="text-xs text-gray-400">{t.noteTracking.lostDescription}</p>
         </>
       )}
     </div>

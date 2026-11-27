@@ -1,13 +1,15 @@
 import { CalendarDays, Mail, Users } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
-
-const TABS = [
-  { to: '/', label: '캘린더', icon: CalendarDays },
-  { to: '/notes', label: '쪽지', icon: Mail },
-  { to: '/share', label: '공유', icon: Users },
-]
+import { useTranslation } from '../../i18n/useTranslation'
 
 export function BottomNav() {
+  const { t } = useTranslation()
+  const TABS = [
+    { to: '/', label: t.nav.calendar, icon: CalendarDays },
+    { to: '/notes', label: t.nav.notes, icon: Mail },
+    { to: '/share', label: t.nav.share, icon: Users },
+  ]
+
   return (
     <nav className="sticky bottom-0 z-30 border-t border-gray-100 bg-white pb-safe">
       <div className="mx-auto flex max-w-xl">

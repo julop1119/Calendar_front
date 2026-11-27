@@ -1,13 +1,14 @@
 import { useGroupMembers } from '../../hooks/useGroups'
 import { Spinner } from '../common/Spinner'
-
-const STATUS_LABEL: Record<string, string> = {
-  ACCEPTED: '참여 중',
-  PENDING: '초대중',
-  DECLINED: '거절함',
-}
+import { useTranslation } from '../../i18n/useTranslation'
 
 export function MemberList({ groupId }: { groupId: number }) {
+  const { t } = useTranslation()
+  const STATUS_LABEL: Record<string, string> = {
+    ACCEPTED: t.memberList.accepted,
+    PENDING: t.memberList.pending,
+    DECLINED: t.memberList.declined,
+  }
   const { data: members, isLoading } = useGroupMembers(groupId)
 
   if (isLoading) {
@@ -36,7 +37,9 @@ export function MemberList({ groupId }: { groupId: number }) {
             </div>
           </div>
           <div className="flex items-center gap-1.5 text-xs">
-            {member.role === 'OWNER' && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-amber-600">방장</span>}
+            {member.role === 'OWNER' && (
+              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-amber-600">{t.memberList.owner}</span>
+            )}
             <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-500">
               {STATUS_LABEL[member.status] ?? member.status}
             </span>

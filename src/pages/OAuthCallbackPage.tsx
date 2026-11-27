@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { FullScreenSpinner } from '../components/common/Spinner'
+import { useTranslation } from '../i18n/useTranslation'
 
 export function OAuthCallbackPage() {
   const [searchParams] = useSearchParams()
   const { login } = useAuth()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
   const handled = useRef(false)
 
@@ -18,13 +20,13 @@ export function OAuthCallbackPage() {
 
     const token = searchParams.get('token')
     if (!token) {
-      setError('로그인 토큰을 받지 못했습니다. 다시 로그인해주세요.')
+      setError(t.oauthCallback.noToken)
       return
     }
     login(token)
       .then(() => navigate('/', { replace: true }))
-      .catch(() => setError('로그인 처리 중 오류가 발생했습니다. 다시 로그인해주세요.'))
-  }, [searchParams, login, navigate])
+      .catch(() => setError(t.oauthCallback.error))
+  }, [searchParams, login, navigate, t])
 
   if (error) {
     return (
@@ -34,7 +36,7 @@ export function OAuthCallbackPage() {
           className="text-sm font-medium text-primary-600"
           onClick={() => navigate('/login', { replace: true })}
         >
-          로그인 화면으로
+          {t.oauthCallback.backToLogin}
         </button>
       </div>
     )

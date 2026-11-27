@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import { type ReactNode } from 'react'
+import { useTranslation } from '../../i18n/useTranslation'
 
 interface ModalProps {
   title: string
@@ -9,6 +10,7 @@ interface ModalProps {
 }
 
 export function Modal({ title, onClose, children, footer }: ModalProps) {
+  const { t } = useTranslation()
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center sm:p-4">
       <div className="flex max-h-[90vh] w-full flex-col rounded-t-2xl bg-white shadow-xl sm:max-w-md sm:rounded-2xl">
@@ -16,7 +18,7 @@ export function Modal({ title, onClose, children, footer }: ModalProps) {
           <h2 className="text-base font-semibold text-gray-900">{title}</h2>
           <button
             onClick={onClose}
-            aria-label="닫기"
+            aria-label={t.common.close}
             className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
           >
             <X className="h-5 w-5" />

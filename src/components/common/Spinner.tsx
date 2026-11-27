@@ -1,9 +1,12 @@
+import { useTranslation } from '../../i18n/useTranslation'
+
 export function Spinner({ className = 'h-6 w-6' }: { className?: string }) {
+  const { t } = useTranslation()
   return (
     <div
       className={`${className} animate-spin rounded-full border-2 border-gray-300 border-t-primary-600`}
       role="status"
-      aria-label="로딩 중"
+      aria-label={t.common.loading}
     />
   )
 }

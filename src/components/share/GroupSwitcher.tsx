@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { ChevronDown, Plus } from 'lucide-react'
 import { useGroupContext } from '../../context/GroupContext'
 import { CreateGroupModal } from './CreateGroupModal'
+import { useTranslation, format } from '../../i18n/useTranslation'
 
 export function GroupSwitcher() {
+  const { t } = useTranslation()
   const { groups, selectedGroup, selectGroup } = useGroupContext()
   const [open, setOpen] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
@@ -15,7 +17,7 @@ export function GroupSwitcher() {
         className="flex items-center gap-1 rounded-lg px-2 py-1 text-left hover:bg-gray-100"
       >
         <span className="max-w-40 truncate text-base font-semibold text-gray-900">
-          {selectedGroup?.title ?? '캘린더'}
+          {selectedGroup?.title ?? t.groupSwitcher.defaultName}
         </span>
         <ChevronDown className="h-4 w-4 shrink-0 text-gray-400" />
       </button>
@@ -36,7 +38,7 @@ export function GroupSwitcher() {
                 }`}
               >
                 <span className="truncate">{group.title}</span>
-                <span className="text-xs text-gray-400">{group.memberCount}명</span>
+                <span className="text-xs text-gray-400">{format(t.groupSwitcher.memberCount, { count: group.memberCount })}</span>
               </button>
             ))}
             <button
@@ -47,7 +49,7 @@ export function GroupSwitcher() {
               className="flex w-full items-center gap-1.5 border-t border-gray-100 px-3 py-2 text-left text-sm text-primary-600 hover:bg-gray-50"
             >
               <Plus className="h-4 w-4" />
-              새 캘린더 만들기
+              {t.groupSwitcher.createNew}
             </button>
           </div>
         </>

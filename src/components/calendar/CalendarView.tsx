@@ -5,13 +5,17 @@ import { parse } from 'date-fns/parse'
 import { startOfWeek } from 'date-fns/startOfWeek'
 import { getDay } from 'date-fns/getDay'
 import { ko } from 'date-fns/locale/ko'
+import { enUS } from 'date-fns/locale/en-US'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import './calendar-view.css'
 import type { CalendarEvent } from '../../types'
-import { getHolidayName } from '../../lib/koreanHolidays'
+import { getHolidayName } from '../../lib/holidays'
+import { useSettings } from '../../context/SettingsContext'
+import { useTranslation } from '../../i18n/useTranslation'
 
 function HolidayDateHeader({ date, label, drilldownView, onDrillDown }: DateHeaderProps) {
-  const holidayName = getHolidayName(date)
+  const { region } = useSettings()
+  const holidayName = getHolidayName(date, region)
   const className = holidayName ? 'rbc-holiday-label' : undefined
 
   if (!drilldownView) {
@@ -28,13 +32,22 @@ function HolidayDateHeader({ date, label, drilldownView, onDrillDown }: DateHead
   )
 }
 
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: () => startOfWeek(new Date(), { locale: ko }),
-  getDay,
-  locales: { ko },
-})
+const localeByLanguage = { ko, en: enUS }
+
+function useLocalizer(language: 'ko' | 'en') {
+  const dateFnsLocale = localeByLanguage[language]
+  return useMemo(
+    () =>
+      dateFnsLocalizer({
+        format,
+        parse,
+        startOfWeek: () => startOfWeek(new Date(), { locale: dateFnsLocale }),
+        getDay,
+        locales: { [language]: dateFnsLocale },
+      }),
+    [language, dateFnsLocale],
+  )
+}
 
 interface BigCalendarEvent {
   title: string
@@ -62,6 +75,10 @@ export function CalendarView({
   onSelectEvent,
   onSelectSlot,
 }: CalendarViewProps) {
+  const { language } = useSettings()
+  const { t } = useTranslation()
+  const localizer = useLocalizer(language)
+
   const items = useMemo<BigCalendarEvent[]>(
     () =>
       events.map((event) => ({
@@ -78,7 +95,7 @@ export function CalendarView({
       <div className="calendar-view h-[calc(100dvh-9rem)] min-h-[32rem] rounded-2xl bg-white p-2 shadow-sm sm:p-3">
         <Calendar
           localizer={localizer}
-          culture="ko"
+          culture={language}
           events={items}
           view={view}
           date={date}
@@ -92,13 +109,13 @@ export function CalendarView({
           components={{ month: { dateHeader: HolidayDateHeader } }}
           style={{ height: '100%' }}
           messages={{
-            next: '다음',
-            previous: '이전',
-            today: '오늘',
-            month: '월',
-            week: '주',
-            noEventsInRange: '일정이 없습니다',
-            showMore: (count) => `+${count}개 더보기`,
+            next: t.calendarMessages.next,
+            previous: t.calendarMessages.previous,
+            today: t.calendarMessages.today,
+            month: t.calendarMessages.month,
+            week: t.calendarMessages.week,
+            noEventsInRange: t.calendarMessages.noEventsInRange,
+            showMore: (count) => t.calendarMessages.showMore.replace('{count}', String(count)),
           }}
         />
       </div>

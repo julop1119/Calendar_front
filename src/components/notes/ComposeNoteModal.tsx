@@ -7,25 +7,27 @@ import { TextAreaField } from '../common/Field'
 import { searchUsers } from '../../api/users'
 import { useSendNote } from '../../hooks/useNotes'
 import { extractErrorMessage } from '../../api/client'
+import { useTranslation } from '../../i18n/useTranslation'
 import type { TransportMode, UserSummary } from '../../types'
 
 interface ComposeNoteModalProps {
   onClose: () => void
 }
 
-const MODE_OPTIONS: { mode: TransportMode; label: string; hint: string; icon: typeof Footprints }[] = [
-  { mode: 'WALK', label: '걷기', hint: '6km/h · 1km당 10분', icon: Footprints },
-  { mode: 'BUS', label: '버스', hint: '30km/h · 1km당 2분', icon: Bus },
-  { mode: 'SUBWAY', label: '지하철', hint: '40km/h · 1km당 1.5분', icon: TrainFront },
-  { mode: 'PLANE', label: '비행기', hint: '36000km/h · 1km당 0.1초', icon: Plane },
-]
-
 export function ComposeNoteModal({ onClose }: ComposeNoteModalProps) {
+  const { t } = useTranslation()
   const [recipient, setRecipient] = useState<UserSummary | null>(null)
   const [query, setQuery] = useState('')
   const [content, setContent] = useState('')
   const [mode, setMode] = useState<TransportMode>('WALK')
   const [error, setError] = useState<string | null>(null)
+
+  const MODE_OPTIONS: { mode: TransportMode; label: string; hint: string; icon: typeof Footprints }[] = [
+    { mode: 'WALK', label: t.composeNote.modeWalk, hint: t.composeNote.modeWalkHint, icon: Footprints },
+    { mode: 'BUS', label: t.composeNote.modeBus, hint: t.composeNote.modeBusHint, icon: Bus },
+    { mode: 'SUBWAY', label: t.composeNote.modeSubway, hint: t.composeNote.modeSubwayHint, icon: TrainFront },
+    { mode: 'PLANE', label: t.composeNote.modePlane, hint: t.composeNote.modePlaneHint, icon: Plane },
+  ]
 
   const search = useMutation({ mutationFn: (q: string) => searchUsers(q) })
   const sendNote = useSendNote()
@@ -37,11 +39,11 @@ export function ComposeNoteModal({ onClose }: ComposeNoteModalProps) {
 
   const handleSend = () => {
     if (!recipient) {
-      setError('받는 사람을 선택해주세요')
+      setError(t.composeNote.recipientRequired)
       return
     }
     if (!content.trim()) {
-      setError('쪽지 내용을 입력해주세요')
+      setError(t.composeNote.contentRequired)
       return
     }
     setError(null)
@@ -49,24 +51,24 @@ export function ComposeNoteModal({ onClose }: ComposeNoteModalProps) {
       { recipientId: recipient.id, content: content.trim(), transportMode: mode },
       {
         onSuccess: onClose,
-        onError: (err) => setError(extractErrorMessage(err, '쪽지를 보내지 못했어요')),
+        onError: (err) => setError(extractErrorMessage(err, t.composeNote.sendFailed)),
       },
     )
   }
 
   return (
     <Modal
-      title="쪽지 보내기"
+      title={t.composeNote.title}
       onClose={onClose}
       footer={
         <Button className="w-full" isLoading={sendNote.isPending} onClick={handleSend}>
-          쪽지 보내기
+          {t.composeNote.send}
         </Button>
       }
     >
       <div className="flex flex-col gap-4">
         <div>
-          <span className="mb-1 block text-sm font-medium text-gray-700">받는 사람</span>
+          <span className="mb-1 block text-sm font-medium text-gray-700">{t.composeNote.recipientLabel}</span>
           {recipient ? (
             <div className="flex items-center justify-between rounded-xl bg-primary-50 px-3 py-2">
               <div>
@@ -84,7 +86,7 @@ export function ComposeNoteModal({ onClose }: ComposeNoteModalProps) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  placeholder="이메일 또는 이름으로 검색"
+                  placeholder={t.composeNote.searchPlaceholder}
                   className="flex-1 rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                 />
                 <Button variant="secondary" isLoading={search.isPending} onClick={handleSearch}>
@@ -108,15 +110,15 @@ export function ComposeNoteModal({ onClose }: ComposeNoteModalProps) {
         </div>
 
         <TextAreaField
-          label="내용"
+          label={t.composeNote.contentLabel}
           rows={3}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="전할 말을 적어주세요"
+          placeholder={t.composeNote.contentPlaceholder}
         />
 
         <div>
-          <span className="mb-1 block text-sm font-medium text-gray-700">보내는 방법</span>
+          <span className="mb-1 block text-sm font-medium text-gray-700">{t.composeNote.modeLabel}</span>
           <div className="grid grid-cols-2 gap-2">
             {MODE_OPTIONS.map(({ mode: m, label, hint, icon: Icon }) => (
               <button

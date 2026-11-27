@@ -5,6 +5,7 @@ import { ComposeNoteModal } from '../components/notes/ComposeNoteModal'
 import { NoteTrackingModal } from '../components/notes/NoteTrackingModal'
 import { EmptyState } from '../components/common/EmptyState'
 import { Spinner } from '../components/common/Spinner'
+import { useTranslation, format } from '../i18n/useTranslation'
 import type { Note, TransportMode } from '../types'
 
 const MODE_ICON: Record<TransportMode, typeof Footprints> = {
@@ -20,13 +21,13 @@ const STATUS_BADGE: Record<Note['status'], string> = {
   LOST: 'bg-gray-100 text-gray-400',
 }
 
-const STATUS_LABEL: Record<Note['status'], string> = {
-  IN_TRANSIT: '배송중',
-  DELIVERED: '도착',
-  LOST: '사라짐',
-}
-
 export function NotesPage() {
+  const { t } = useTranslation()
+  const STATUS_LABEL: Record<Note['status'], string> = {
+    IN_TRANSIT: t.notesPage.statusInTransit,
+    DELIVERED: t.notesPage.statusDelivered,
+    LOST: t.notesPage.statusLost,
+  }
   const [tab, setTab] = useState<'received' | 'sent'>('received')
   const [composing, setComposing] = useState(false)
   const [trackingId, setTrackingId] = useState<number | null>(null)
@@ -60,13 +61,13 @@ export function NotesPage() {
               tab === key ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-500'
             }`}
           >
-            {key === 'received' ? '받은 쪽지' : '보낸 쪽지'}
+            {key === 'received' ? t.notesPage.received : t.notesPage.sent}
           </button>
         ))}
       </div>
 
       {!navigator.geolocation ? null : updateLocation.isError ? (
-        <p className="px-4 pt-2 text-xs text-gray-400">위치 공유를 허용하면 쪽지를 주고받을 수 있어요</p>
+        <p className="px-4 pt-2 text-xs text-gray-400">{t.notesPage.locationHint}</p>
       ) : null}
 
       <div className="flex flex-col gap-2 px-4 py-3">
@@ -77,8 +78,8 @@ export function NotesPage() {
         ) : !notes || notes.length === 0 ? (
           <EmptyState
             icon={Mail}
-            title={tab === 'received' ? '받은 쪽지가 없어요' : '보낸 쪽지가 없어요'}
-            description="우하단 + 버튼으로 쪽지를 보내보세요"
+            title={tab === 'received' ? t.notesPage.emptyReceived : t.notesPage.emptySent}
+            description={t.notesPage.emptyDescription}
           />
         ) : (
           notes.map((note) => {
@@ -95,10 +96,13 @@ export function NotesPage() {
                 </div>
                 <div className="flex-1 overflow-hidden">
                   <p className="truncate text-sm font-medium text-gray-900">
-                    {tab === 'received' ? `${other.name}님이 보냄` : `${other.name}님에게`}
+                    {tab === 'received'
+                      ? format(t.notesPage.fromSomeone, { name: other.name })
+                      : format(t.notesPage.toSomeone, { name: other.name })}
                   </p>
                   <p className="truncate text-xs text-gray-400">
-                    {note.content ?? (note.status === 'LOST' ? '내용을 다시 볼 수 없어요' : '내용은 도착해야 볼 수 있어요')}
+                    {note.content ??
+                      (note.status === 'LOST' ? t.notesPage.contentHiddenLost : t.notesPage.contentHiddenInTransit)}
                   </p>
                 </div>
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_BADGE[note.status]}`}>
@@ -113,7 +117,7 @@ export function NotesPage() {
       <button
         onClick={() => setComposing(true)}
         className="fixed bottom-20 right-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg hover:bg-primary-700"
-        aria-label="쪽지 보내기"
+        aria-label={t.notesPage.sendNote}
       >
         <Plus className="h-6 w-6" />
       </button>

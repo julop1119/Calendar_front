@@ -6,6 +6,7 @@ import { TextAreaField, TextField } from '../common/Field'
 import { useConfirmAiEvent, useParseEventIntent } from '../../hooks/useAi'
 import { extractErrorMessage } from '../../api/client'
 import { dateToInputValue, inputValueToIso, isoToInputValue } from '../../utils/date'
+import { useTranslation, format } from '../../i18n/useTranslation'
 import type { AiParseResult, PlaceCandidate } from '../../types'
 
 interface AiPlannerModalProps {
@@ -19,6 +20,7 @@ type Step =
   | { kind: 'confirm'; result: AiParseResult; candidate: PlaceCandidate }
 
 export function AiPlannerModal({ groupId, onClose }: AiPlannerModalProps) {
+  const { t } = useTranslation()
   const [text, setText] = useState('')
   const [step, setStep] = useState<Step>({ kind: 'input' })
   const [error, setError] = useState<string | null>(null)
@@ -28,33 +30,33 @@ export function AiPlannerModal({ groupId, onClose }: AiPlannerModalProps) {
 
   const handleParse = () => {
     if (!text.trim()) {
-      setError('약속 내용을 입력해주세요')
+      setError(t.ai.contentRequired)
       return
     }
     setError(null)
     parseIntent.mutate(text.trim(), {
       onSuccess: (result) => setStep({ kind: 'candidates', result }),
-      onError: (err) => setError(extractErrorMessage(err, 'AI 추천에 실패했습니다')),
+      onError: (err) => setError(extractErrorMessage(err, t.ai.parseFailed)),
     })
   }
 
   if (step.kind === 'input') {
     return (
       <Modal
-        title="AI로 약속 잡기"
+        title={t.ai.modalTitle}
         onClose={onClose}
         footer={
           <Button className="w-full" isLoading={parseIntent.isPending} onClick={handleParse}>
             <Sparkles className="h-4 w-4" />
-            추천받기
+            {t.ai.recommend}
           </Button>
         }
       >
         <TextAreaField
-          label="약속 내용을 말해주세요"
+          label={t.ai.contentLabel}
           rows={3}
           autoFocus
-          placeholder="예: 벤쿠버 다운타운에서 한식집 7시 약속"
+          placeholder={t.ai.contentPlaceholder}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
@@ -65,10 +67,10 @@ export function AiPlannerModal({ groupId, onClose }: AiPlannerModalProps) {
 
   if (step.kind === 'candidates') {
     return (
-      <Modal title="추천 장소" onClose={onClose}>
-        <p className="mb-3 text-sm text-gray-500">"{step.result.title}" 후보 중 하나를 골라주세요</p>
+      <Modal title={t.ai.candidatesTitle} onClose={onClose}>
+        <p className="mb-3 text-sm text-gray-500">{format(t.ai.candidatesHint, { title: step.result.title })}</p>
         {step.result.candidates.length === 0 && (
-          <p className="py-8 text-center text-sm text-gray-400">추천할 장소를 찾지 못했어요</p>
+          <p className="py-8 text-center text-sm text-gray-400">{t.ai.noCandidates}</p>
         )}
         <div className="flex flex-col gap-2">
           {step.result.candidates.map((candidate) => (
@@ -121,6 +123,7 @@ interface ConfirmStepProps {
 }
 
 function ConfirmStep({ result, candidate, onBack, onClose, confirmEvent }: ConfirmStepProps) {
+  const { t } = useTranslation()
   const now = new Date()
   const [title, setTitle] = useState(result.title)
   const [startTime, setStartTime] = useState(
@@ -133,7 +136,7 @@ function ConfirmStep({ result, candidate, onBack, onClose, confirmEvent }: Confi
 
   const handleConfirm = () => {
     if (!title.trim() || !startTime || !endTime) {
-      setError('제목과 시간을 확인해주세요')
+      setError(t.ai.checkTitleAndTime)
       return
     }
     confirmEvent.mutate(
@@ -149,39 +152,39 @@ function ConfirmStep({ result, candidate, onBack, onClose, confirmEvent }: Confi
       },
       {
         onSuccess: onClose,
-        onError: (err) => setError(extractErrorMessage(err, '일정을 등록하지 못했습니다')),
+        onError: (err) => setError(extractErrorMessage(err, t.ai.registerFailed)),
       },
     )
   }
 
   return (
     <Modal
-      title="일정 확인"
+      title={t.ai.confirmTitle}
       onClose={onClose}
       footer={
         <Button className="w-full" isLoading={confirmEvent.isPending} onClick={handleConfirm}>
-          이 장소로 일정 등록
+          {t.ai.registerHere}
         </Button>
       }
     >
       <button onClick={onBack} className="mb-3 flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600">
         <ArrowLeft className="h-3.5 w-3.5" />
-        다른 장소 고르기
+        {t.ai.pickAnother}
       </button>
       <div className="mb-4 rounded-xl bg-gray-50 px-4 py-3">
         <p className="font-medium text-gray-900">{candidate.name}</p>
         {candidate.address && <p className="text-xs text-gray-500">{candidate.address}</p>}
       </div>
       <div className="flex flex-col gap-3">
-        <TextField label="제목" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <TextField label={t.ai.titleLabel} value={title} onChange={(e) => setTitle(e.target.value)} />
         <div className="grid grid-cols-2 gap-3">
           <TextField
-            label="시작"
+            label={t.ai.startLabel}
             type="datetime-local"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
           />
-          <TextField label="종료" type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+          <TextField label={t.ai.endLabel} type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
         </div>
         {error && <p className="text-xs text-red-500">{error}</p>}
       </div>

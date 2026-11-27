@@ -4,6 +4,7 @@ import { Button } from '../common/Button'
 import { TextField } from '../common/Field'
 import { useCreateGroup } from '../../hooks/useGroups'
 import { extractErrorMessage } from '../../api/client'
+import { useTranslation } from '../../i18n/useTranslation'
 
 interface CreateGroupModalProps {
   onClose: () => void
@@ -11,13 +12,14 @@ interface CreateGroupModalProps {
 }
 
 export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) {
+  const { t } = useTranslation()
   const [title, setTitle] = useState('')
   const [error, setError] = useState<string | null>(null)
   const createGroup = useCreateGroup()
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      setError('캘린더 이름을 입력해주세요')
+      setError(t.createGroup.nameRequired)
       return
     }
     createGroup.mutate(title.trim(), {
@@ -25,23 +27,23 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
         onCreated(group.id)
         onClose()
       },
-      onError: (err) => setError(extractErrorMessage(err, '캘린더를 만들지 못했습니다')),
+      onError: (err) => setError(extractErrorMessage(err, t.createGroup.createFailed)),
     })
   }
 
   return (
     <Modal
-      title="새 캘린더 만들기"
+      title={t.createGroup.title}
       onClose={onClose}
       footer={
         <Button className="w-full" isLoading={createGroup.isPending} onClick={handleSubmit}>
-          만들기
+          {t.createGroup.create}
         </Button>
       }
     >
       <TextField
-        label="캘린더 이름"
-        placeholder="예: 우리 가족 캘린더"
+        label={t.createGroup.nameLabel}
+        placeholder={t.createGroup.namePlaceholder}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         error={error ?? undefined}
