@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Calendar, dateFnsLocalizer, type View } from 'react-big-calendar'
+import { Calendar, dateFnsLocalizer, type DateHeaderProps, type View } from 'react-big-calendar'
 import { format } from 'date-fns/format'
 import { parse } from 'date-fns/parse'
 import { startOfWeek } from 'date-fns/startOfWeek'
@@ -8,6 +8,25 @@ import { ko } from 'date-fns/locale/ko'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import './calendar-view.css'
 import type { CalendarEvent } from '../../types'
+import { getHolidayName } from '../../lib/koreanHolidays'
+
+function HolidayDateHeader({ date, label, drilldownView, onDrillDown }: DateHeaderProps) {
+  const holidayName = getHolidayName(date)
+  const className = holidayName ? 'rbc-holiday-label' : undefined
+
+  if (!drilldownView) {
+    return (
+      <span className={className} title={holidayName}>
+        {label}
+      </span>
+    )
+  }
+  return (
+    <button type="button" className={['rbc-button-link', className].filter(Boolean).join(' ')} title={holidayName} onClick={onDrillDown}>
+      {label}
+    </button>
+  )
+}
 
 const localizer = dateFnsLocalizer({
   format,
@@ -70,6 +89,7 @@ export function CalendarView({
           popup
           onSelectEvent={(e) => onSelectEvent((e as BigCalendarEvent).resource)}
           onSelectSlot={(slot) => onSelectSlot({ start: slot.start, end: slot.end })}
+          components={{ month: { dateHeader: HolidayDateHeader } }}
           style={{ height: '100%' }}
           messages={{
             next: '다음',

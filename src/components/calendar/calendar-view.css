@@ -115,6 +115,11 @@
   color: #fff;
 }
 
+.calendar-view .rbc-holiday-label {
+  color: #ef4444;
+  font-weight: 700;
+}
+
 .calendar-view .rbc-off-range {
   color: #d1d5db;
 }
