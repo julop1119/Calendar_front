@@ -10,6 +10,13 @@ const config: CapacitorConfig = {
     url: 'https://cmled.synology.me:8443',
     cleartext: false,
   },
+  // 네이티브(android WebView) 리사이즈 대신 body만 리사이즈하게 해서,
+  // 키보드가 올라올 때 position:fixed 모달(바텀시트 등) 레이아웃이 깨지는 걸 막는다.
+  plugins: {
+    Keyboard: {
+      resize: 'body',
+    },
+  },
 }
 
 export default config
