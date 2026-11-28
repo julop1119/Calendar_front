@@ -120,6 +120,28 @@
   font-weight: 700;
 }
 
+.calendar-view .rbc-holiday-cell {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.calendar-view .rbc-holiday-tag {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 0.25rem;
+  background-color: #fef2f2;
+  padding: 0 0.25rem;
+  font-size: 0.55rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #ef4444;
+}
+
 .calendar-view .rbc-off-range {
   color: #d1d5db;
 }

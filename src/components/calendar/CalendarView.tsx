@@ -18,17 +18,25 @@ function HolidayDateHeader({ date, label, drilldownView, onDrillDown }: DateHead
   const holidayName = getHolidayName(date, region)
   const className = holidayName ? 'rbc-holiday-label' : undefined
 
-  if (!drilldownView) {
-    return (
-      <span className={className} title={holidayName}>
-        {label}
-      </span>
-    )
-  }
-  return (
-    <button type="button" className={['rbc-button-link', className].filter(Boolean).join(' ')} title={holidayName} onClick={onDrillDown}>
+  const numberEl = !drilldownView ? (
+    <span className={className}>{label}</span>
+  ) : (
+    <button type="button" className={['rbc-button-link', className].filter(Boolean).join(' ')} onClick={onDrillDown}>
       {label}
     </button>
+  )
+
+  if (!holidayName) {
+    return numberEl
+  }
+
+  return (
+    <div className="rbc-holiday-cell">
+      {numberEl}
+      <span className="rbc-holiday-tag" title={holidayName}>
+        {holidayName}
+      </span>
+    </div>
   )
 }
 
