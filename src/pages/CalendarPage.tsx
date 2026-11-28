@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CalendarDays, Plus } from 'lucide-react'
 import type { View } from 'react-big-calendar'
 import { useGroupContext } from '../context/GroupContext'
@@ -11,6 +11,7 @@ import { AiPlannerModal } from '../components/ai/AiPlannerModal'
 import { FullScreenSpinner } from '../components/common/Spinner'
 import { EmptyState } from '../components/common/EmptyState'
 import { useTranslation } from '../i18n/useTranslation'
+import { syncCalendarWidget } from '../plugins/widgetBridge'
 import type { CalendarEvent } from '../types'
 
 type Sheet =
@@ -27,6 +28,10 @@ export function CalendarPage() {
   const [date, setDate] = useState(new Date())
   const [sheet, setSheet] = useState<Sheet>({ kind: 'none' })
   const { t } = useTranslation()
+
+  useEffect(() => {
+    syncCalendarWidget(events)
+  }, [events])
 
   if (groupsLoading) {
     return <FullScreenSpinner />
