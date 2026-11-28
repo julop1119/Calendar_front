@@ -187,6 +187,11 @@ const ko = {
     korea: '대한민국',
     canada: '캐나다',
     back: '뒤로',
+    noteCharacter: '쪽지 캐릭터',
+    noteCharacterDescription: '쪽지 위치 지도에 표시될 아이콘이에요. 등록하지 않으면 기본 아이콘을 써요',
+    chooseImage: '이미지 선택',
+    useDefault: '기본 아이콘 사용',
+    imageTooLarge: '이미지를 불러오지 못했어요. 다른 사진으로 시도해주세요',
   },
 }
 
@@ -377,6 +382,11 @@ const en: typeof ko = {
     korea: 'Korea',
     canada: 'Canada',
     back: 'Back',
+    noteCharacter: 'Note character',
+    noteCharacterDescription: "The icon shown for your note on the tracking map. Uses a default icon if you don't set one",
+    chooseImage: 'Choose image',
+    useDefault: 'Use default icon',
+    imageTooLarge: "Couldn't load that image. Please try another photo",
   },
 }
 

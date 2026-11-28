@@ -1,7 +1,9 @@
+import { useRef, useState } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useSettings } from '../context/SettingsContext'
 import { useTranslation } from '../i18n/useTranslation'
+import { resizeImageToDataUrl } from '../lib/resizeImage'
 import type { Language } from '../i18n/translations'
 import type { Region } from '../lib/holidays'
 
@@ -32,6 +34,69 @@ function SettingsSection({ title, description, children }: { title: string; desc
       <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
       <p className="mb-3 mt-0.5 text-xs text-gray-400">{description}</p>
       <div className="flex gap-2">{children}</div>
+    </section>
+  )
+}
+
+function NoteCharacterSection() {
+  const { noteCharacterIcon, setNoteCharacterIcon } = useSettings()
+  const { t } = useTranslation()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleFile = async (file: File) => {
+    try {
+      const dataUrl = await resizeImageToDataUrl(file, 64)
+      setNoteCharacterIcon(dataUrl)
+      setError(null)
+    } catch {
+      setError(t.settings.imageTooLarge)
+    }
+  }
+
+  return (
+    <section className="px-5 py-4">
+      <h2 className="text-sm font-semibold text-gray-900">{t.settings.noteCharacter}</h2>
+      <p className="mb-3 mt-0.5 text-xs text-gray-400">{t.settings.noteCharacterDescription}</p>
+      <div className="flex items-center gap-3">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-gray-50">
+          {noteCharacterIcon ? (
+            <img src={noteCharacterIcon} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-xs text-gray-400">?</span>
+          )}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-lg bg-gray-100 px-3 py-1.5 text-left text-xs font-medium text-gray-700 hover:bg-gray-200"
+          >
+            {t.settings.chooseImage}
+          </button>
+          {noteCharacterIcon && (
+            <button
+              onClick={() => setNoteCharacterIcon(null)}
+              className="rounded-lg px-3 py-1.5 text-left text-xs font-medium text-gray-400 hover:bg-gray-50"
+            >
+              {t.settings.useDefault}
+            </button>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) {
+              handleFile(file)
+            }
+            e.target.value = ''
+          }}
+        />
+      </div>
+      {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
     </section>
   )
 }
@@ -84,6 +149,8 @@ export function SettingsPage() {
           />
         ))}
       </SettingsSection>
+
+      <NoteCharacterSection />
     </div>
   )
 }

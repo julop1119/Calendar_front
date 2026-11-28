@@ -1,7 +1,9 @@
-import { Bus, Footprints, MapPin, Plane, TrainFront } from 'lucide-react'
+import { Bus, Footprints, Plane, TrainFront } from 'lucide-react'
 import { Modal } from '../common/Modal'
 import { Spinner } from '../common/Spinner'
+import { NoteMap } from './NoteMap'
 import { useNoteTracking } from '../../hooks/useNotes'
+import { useSettings } from '../../context/SettingsContext'
 import { useTranslation, format } from '../../i18n/useTranslation'
 import type { TranslationDict } from '../../i18n/translations'
 import type { TransportMode } from '../../types'
@@ -49,6 +51,7 @@ export function NoteTrackingModal({ noteId, onClose }: NoteTrackingModalProps) {
 
 function TrackingBody({ tracking }: { tracking: NonNullable<ReturnType<typeof useNoteTracking>['data']> }) {
   const { t } = useTranslation()
+  const { noteCharacterIcon } = useSettings()
   const meta = modeMeta(t)[tracking.transportMode]
   const Icon = meta.icon
 
@@ -80,17 +83,7 @@ function TrackingBody({ tracking }: { tracking: NonNullable<ReturnType<typeof us
               })}
             </p>
           </div>
-          {tracking.currentLatitude != null && tracking.currentLongitude != null && (
-            <a
-              href={`https://www.google.com/maps?q=${tracking.currentLatitude},${tracking.currentLongitude}`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline"
-            >
-              <MapPin className="h-3.5 w-3.5" />
-              {t.noteTracking.viewOnMap}
-            </a>
-          )}
+          <NoteMap tracking={tracking} characterIcon={noteCharacterIcon} />
         </>
       )}
 

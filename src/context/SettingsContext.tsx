@@ -4,12 +4,15 @@ import type { Language } from '../i18n/translations'
 
 const LANGUAGE_STORAGE_KEY = 'calendar.language'
 const REGION_STORAGE_KEY = 'calendar.region'
+const NOTE_CHARACTER_STORAGE_KEY = 'calendar.noteCharacterIcon'
 
 interface SettingsContextValue {
   language: Language
   region: Region
+  noteCharacterIcon: string | null
   setLanguage: (language: Language) => void
   setRegion: (region: Region) => void
+  setNoteCharacterIcon: (dataUrl: string | null) => void
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null)
@@ -24,6 +27,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     readStored(LANGUAGE_STORAGE_KEY, ['ko', 'en'] as const, 'ko'),
   )
   const [region, setRegionState] = useState<Region>(() => readStored(REGION_STORAGE_KEY, ['KR', 'CA'] as const, 'KR'))
+  const [noteCharacterIcon, setNoteCharacterIconState] = useState<string | null>(() =>
+    localStorage.getItem(NOTE_CHARACTER_STORAGE_KEY),
+  )
 
   useEffect(() => {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, language)
@@ -33,8 +39,25 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(REGION_STORAGE_KEY, region)
   }, [region])
 
+  useEffect(() => {
+    if (noteCharacterIcon) {
+      localStorage.setItem(NOTE_CHARACTER_STORAGE_KEY, noteCharacterIcon)
+    } else {
+      localStorage.removeItem(NOTE_CHARACTER_STORAGE_KEY)
+    }
+  }, [noteCharacterIcon])
+
   return (
-    <SettingsContext.Provider value={{ language, region, setLanguage: setLanguageState, setRegion: setRegionState }}>
+    <SettingsContext.Provider
+      value={{
+        language,
+        region,
+        noteCharacterIcon,
+        setLanguage: setLanguageState,
+        setRegion: setRegionState,
+        setNoteCharacterIcon: setNoteCharacterIconState,
+      }}
+    >
       {children}
     </SettingsContext.Provider>
   )
