@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Bus, Footprints, Mail, Plane, Plus, TrainFront } from 'lucide-react'
+import { Bus, Footprints, Mail, MapPin, Plane, Plus, TrainFront } from 'lucide-react'
+import { Geolocation } from '@capacitor/geolocation'
 import { useReceivedNotes, useSentNotes, useUpdateMyLocation } from '../hooks/useNotes'
 import { ComposeNoteModal } from '../components/notes/ComposeNoteModal'
 import { NoteTrackingModal } from '../components/notes/NoteTrackingModal'
@@ -35,15 +36,36 @@ export function NotesPage() {
   const updateLocation = useUpdateMyLocation()
   const received = useReceivedNotes()
   const sent = useSentNotes()
+  const [locationGranted, setLocationGranted] = useState(false)
+  const [locationDenied, setLocationDenied] = useState(false)
+
+  const shareLocation = async () => {
+    try {
+      const permission = await Geolocation.requestPermissions()
+      if (permission.location !== 'granted' && permission.coarseLocation !== 'granted') {
+        setLocationDenied(true)
+        return
+      }
+      const position = await Geolocation.getCurrentPosition()
+      updateLocation.mutate({ latitude: position.coords.latitude, longitude: position.coords.longitude })
+      setLocationGranted(true)
+      setLocationDenied(false)
+    } catch {
+      setLocationDenied(true)
+    }
+  }
 
   useEffect(() => {
-    if (!navigator.geolocation) return
-    navigator.geolocation.getCurrentPosition(
-      (position) => updateLocation.mutate({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
-      () => {
-        /* 위치 권한을 거부하면 조용히 무시 */
-      },
-    )
+    // 이미 허용된 상태라면 화면 진입 시마다 자동으로 최신 위치로 갱신한다.
+    Geolocation.checkPermissions()
+      .then((permission) => {
+        if (permission.location === 'granted' || permission.coarseLocation === 'granted') {
+          shareLocation()
+        }
+      })
+      .catch(() => {
+        /* 권한 확인 자체가 안 되는 환경이면 버튼으로 직접 요청하게 둔다 */
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -66,9 +88,15 @@ export function NotesPage() {
         ))}
       </div>
 
-      {!navigator.geolocation ? null : updateLocation.isError ? (
-        <p className="px-4 pt-2 text-xs text-gray-400">{t.notesPage.locationHint}</p>
-      ) : null}
+      {!locationGranted && (
+        <button
+          onClick={shareLocation}
+          className="mx-4 mt-2 flex items-center gap-1.5 rounded-xl bg-primary-50 px-3 py-2 text-left text-xs font-medium text-primary-700"
+        >
+          <MapPin className="h-3.5 w-3.5 shrink-0" />
+          {locationDenied ? t.notesPage.locationDenied : t.notesPage.locationHint}
+        </button>
+      )}
 
       <div className="flex flex-col gap-2 px-4 py-3">
         {isLoading ? (

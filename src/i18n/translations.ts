@@ -85,7 +85,8 @@ const ko = {
   notesPage: {
     received: '받은 쪽지',
     sent: '보낸 쪽지',
-    locationHint: '위치 공유를 허용하면 쪽지를 주고받을 수 있어요',
+    locationHint: '위치 공유 허용하기 (쪽지를 주고받으려면 필요해요)',
+    locationDenied: '위치 권한이 거부됐어요. 눌러서 다시 시도하거나 기기 설정에서 허용해주세요',
     emptyReceived: '받은 쪽지가 없어요',
     emptySent: '보낸 쪽지가 없어요',
     emptyDescription: '우하단 + 버튼으로 쪽지를 보내보세요',
@@ -280,7 +281,8 @@ const en: typeof ko = {
   notesPage: {
     received: 'Received',
     sent: 'Sent',
-    locationHint: 'Allow location access to send and receive notes',
+    locationHint: 'Allow location access (needed to send and receive notes)',
+    locationDenied: 'Location permission was denied. Tap to try again, or allow it in device settings',
     emptyReceived: 'No notes received yet',
     emptySent: 'No notes sent yet',
     emptyDescription: 'Send a note with the + button in the corner',
