@@ -1,8 +1,10 @@
 package com.example.calendar.app;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.widget.RemoteViews;
@@ -40,6 +42,16 @@ public class CalendarWidgetProvider extends AppWidgetProvider {
 
     private static RemoteViews buildRemoteViews(Context context) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.calendar_widget);
+
+        Intent launchIntent = new Intent(context, MainActivity.class);
+        launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                launchIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
 
         Calendar today = Calendar.getInstance();
         int todayYear = today.get(Calendar.YEAR);
@@ -87,13 +99,17 @@ public class CalendarWidgetProvider extends AppWidgetProvider {
             views.setTextViewText(cellId, String.valueOf(day));
 
             boolean isToday = isCurrentMonth && day == todayDay;
+            boolean hasEvent = eventDays.contains(day);
+
             if (isToday) {
                 views.setInt(cellId, "setBackgroundResource", R.drawable.widget_today_circle);
                 views.setTextColor(cellId, Color.WHITE);
+            } else if (hasEvent) {
+                views.setInt(cellId, "setBackgroundResource", R.drawable.widget_event_circle);
+                views.setTextColor(cellId, Color.parseColor("#DC2626"));
             } else {
                 views.setInt(cellId, "setBackgroundColor", Color.TRANSPARENT);
-                boolean hasEvent = eventDays.contains(day);
-                views.setTextColor(cellId, hasEvent ? Color.parseColor("#EF4444") : Color.parseColor("#374151"));
+                views.setTextColor(cellId, Color.parseColor("#374151"));
             }
         }
 
