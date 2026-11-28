@@ -1,8 +1,10 @@
+import { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { SettingsProvider } from './context/SettingsContext'
 import { AppRouter } from './router'
+import { setupKeyboardScrollFix } from './native/keyboardScrollFix'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,6 +16,8 @@ const queryClient = new QueryClient({
 })
 
 export default function App() {
+  useEffect(() => setupKeyboardScrollFix(), [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
