@@ -11,6 +11,7 @@ import { AiPlannerModal } from '../components/ai/AiPlannerModal'
 import { FullScreenSpinner } from '../components/common/Spinner'
 import { EmptyState } from '../components/common/EmptyState'
 import { useTranslation } from '../i18n/useTranslation'
+import { useSettings } from '../context/SettingsContext'
 import { syncCalendarWidget } from '../plugins/widgetBridge'
 import type { CalendarEvent } from '../types'
 
@@ -28,10 +29,11 @@ export function CalendarPage() {
   const [date, setDate] = useState(new Date())
   const [sheet, setSheet] = useState<Sheet>({ kind: 'none' })
   const { t } = useTranslation()
+  const { region } = useSettings()
 
   useEffect(() => {
-    syncCalendarWidget(events)
-  }, [events])
+    syncCalendarWidget(events, region)
+  }, [events, region])
 
   if (groupsLoading) {
     return <FullScreenSpinner />

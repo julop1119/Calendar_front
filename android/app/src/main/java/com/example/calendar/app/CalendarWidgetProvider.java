@@ -61,6 +61,7 @@ public class CalendarWidgetProvider extends AppWidgetProvider {
         int dataYear = todayYear;
         int dataMonth = todayMonth;
         Set<Integer> eventDays = new HashSet<>();
+        Set<Integer> holidayDays = new HashSet<>();
 
         SharedPreferences prefs = context.getSharedPreferences(WidgetBridgePlugin.PREFS_NAME, Context.MODE_PRIVATE);
         String json = prefs.getString(WidgetBridgePlugin.KEY_DATA, null);
@@ -72,6 +73,12 @@ public class CalendarWidgetProvider extends AppWidgetProvider {
                 JSONArray days = obj.getJSONArray("eventDays");
                 for (int i = 0; i < days.length(); i++) {
                     eventDays.add(days.getInt(i));
+                }
+                JSONArray holidays = obj.optJSONArray("holidayDays");
+                if (holidays != null) {
+                    for (int i = 0; i < holidays.length(); i++) {
+                        holidayDays.add(holidays.getInt(i));
+                    }
                 }
             } catch (Exception ignored) {
                 // 저장된 데이터가 없거나 손상된 경우: 그냥 숫자 달력만 보여준다.
@@ -99,14 +106,18 @@ public class CalendarWidgetProvider extends AppWidgetProvider {
             views.setTextViewText(cellId, String.valueOf(day));
 
             boolean isToday = isCurrentMonth && day == todayDay;
+            boolean isHoliday = holidayDays.contains(day);
             boolean hasEvent = eventDays.contains(day);
 
             if (isToday) {
                 views.setInt(cellId, "setBackgroundResource", R.drawable.widget_today_circle);
                 views.setTextColor(cellId, Color.WHITE);
+            } else if (isHoliday) {
+                views.setInt(cellId, "setBackgroundResource", R.drawable.widget_holiday_circle);
+                views.setTextColor(cellId, Color.parseColor("#DC2626"));
             } else if (hasEvent) {
                 views.setInt(cellId, "setBackgroundResource", R.drawable.widget_event_circle);
-                views.setTextColor(cellId, Color.parseColor("#DC2626"));
+                views.setTextColor(cellId, Color.parseColor("#2563EB"));
             } else {
                 views.setInt(cellId, "setBackgroundColor", Color.TRANSPARENT);
                 views.setTextColor(cellId, Color.parseColor("#374151"));
